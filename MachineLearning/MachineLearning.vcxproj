@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{2183b16c-67c4-49d2-ab87-9636e0b8eca3}</ProjectGuid>
+    <ProjectGuid>{e6d2d69c-654c-4a88-ab32-ba0aa1bd7fe6}</ProjectGuid>
     <RootNamespace>MachineLearning</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

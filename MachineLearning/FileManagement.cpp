@@ -18,7 +18,7 @@ map<int, float> FileManagement::returnAsIF(string filePathP)
 		string delim = ",";
 		//for each line
 		while (getline(stream, line)) {
-			
+
 			// if it's numbers
 			char c{ line[0] };
 			if (isdigit(c)) {
