@@ -18,99 +18,113 @@ float hypothesis(float x, float t0, float t1) {
 	return t1 * x + t0;
 }
 
+double cost(map<int, float>& content, float t0, float t1 ) {
 
-float sum(int m, int x, map<int, float>& content, float t0, float t1) {
-	double sum{ 0.0 };
-	for (int i = 1; i <= m; i++) {
-		float hypo = hypothesis(float(x), t0, t1);
-		float result{ content[x] };
-		double it{ pow(hypo - result, 2) };
-		sum += it;
+	double totalCost{ 0.f };
+
+	for (auto i = content.begin(); i != content.end(); i++) {
+		float hypo = hypothesis(float(i->first), t0, t1);
+		double cost{ pow(hypo - i->second, 2.f) };
+		totalCost += cost;
 	}
-	return sum;
+
+	double averageCost{ totalCost / content.size() };
+	return averageCost;
 }
 
-float sumt0(int m, int x, map<int, float>& content, float t0, float t1) {
-	double sum{ 0.0 };
-	for (int i = 1; i <= m; i++) {
-		float hypo{ hypothesis(float(x), t0, t1) };
-		float result{ content[x] };
-		double it{ hypo - result };
-		sum += it;
+void gradient(map<int, float>& content, float& t0, float& t1, float step) {
+	/*
+	float totalErrorDiff0{0.f};
+	float totalErrorDiff1{0.f};
+	int dataSize{ int(content.size()) };
+
+	for (auto i = content.begin(); i != content.end(); i++) {
+		float hypoY{ hypothesis(i->first, t0, t1) };
+		const float errorDiff0{ hypoY - i->second };
+		totalErrorDiff0 += errorDiff0;
+		const float errorDiff1{ (hypoY - i->second) * i->first };
+		totalErrorDiff1 += errorDiff1;
 	}
-	return sum;
-}
 
-float sumt1(int m, int x, map<int, float>& content, float t0, float t1) {
-	double sum{ 0.0 };
-	for (int i = 1; i <= m; i++) {
-		float hypo{ hypothesis(float(x), t0, t1) };
-		float result{ content[x] };
-		double it{ (hypo - result)*hypo };
-		sum += it;
+	float temp0 = (step / dataSize) * totalErrorDiff0;
+	float temp1 = (step / dataSize) * totalErrorDiff1;
+
+	t0 -= temp0;
+	t1 -= temp1;
+
+	*/
+
+	//float totalError0{ 0.f };
+	float totalError1{ 0.f };
+	int dataSize{ int(content.size()) };
+
+	for (auto i = content.begin(); i != content.end(); i++) {
+		float hypo{ hypothesis(i->first, t0, t1) };
+		//const float errorDiff{ hypo - i->second };
+		const float errorDiff1 =  (hypo - i->second) * i->first;
+		//totalError0 += errorDiff;
+		totalError1 += errorDiff1;
 	}
-	return sum;
 
+	//float temp0 = (step / dataSize) * totalError0;
+	float temp1 = (step / dataSize) * totalError1;
+	//t0 -= temp0;
+	t1 -= temp1;
 }
 
-float cost(int m, float x, map<int, float>& content, float t0, float t1 ) {
-	double cost{ (1.f / (2.f * m)) * sum(m, x, content, t0, t1) };
-	return cost;
+
+void findThetas(float &t0, float &t1, float stop, float step, map<int, float> &content) {
+	int iter{ 1 };
+	int dataSize{ int(content.size()) };
+	float diff;
+
+	
+	do {
+		cout << "###############   Iteration " << iter << " ############################" << endl;
+		cout << "Theta0 = " << t0 << " ; Theta1 = " << t1 << endl;
+
+		double initialCost{cost(content, t0, t1)};
+
+
+		cout << "Initial cost = " << initialCost << endl;
+
+		gradient(content, t0, t1, step);
+
+		double newCost{ cost(content, t0, t1) };
+
+		cout << "--- GRADIENT ---" << endl;
+		cout << "Theta0 = " << t0 << " ; Theta1 = " << t1 << endl;
+		cout << "New cost = " << newCost << endl;
+		cout << endl;
+		iter++;
+	} while (iter <10);
+	//while(diff > stop
+	
 }
-
-
-void gradientT0(float &t0, float &t1, float alpha, map<int, float> &content, int itNb) {
-	cout << "init : " << t0 << " - " << t1 << endl;
-	float t0b{ t0 };
-	float t1b{ t1 }; 
-	float temp0{ t0 - 1 };
-	float temp1{ t1 - 1 };
-	int m{ 1 };
-	int x{ itNb };
-	while (abs(temp0 - t0) > 0.001 || abs(temp1 -1) > 0.001) {
-		cout << "iteration " << m << " ; t0 = " << t0 << " ; t1 = " << t1 << endl;
-		temp0 = t0 - alpha * (1 / m) * cost(m, x, content, t0, t1);
-		temp1 = t1 - alpha * (1 / m) * sumt1(m, x, content, t0, t1);
-		float diff0 = abs(temp0 - t0);
-		float diff1 = abs(temp1 - t1);
-		cout << "iteration " << m << " ; temp0 = " << temp0 << " ; temp1 = " << temp1 << endl;
-		cout << "iteration " << m << " ; temp0 = " << temp0 << " ; t0 = " << t0 << endl;
-		cout << "diff0 = " << diff0 << endl;
-		cout << "diff1 = " << diff1 << endl;
-		if (diff0 > 0.001 || diff1 > 0.001) {
-			t0 = temp0;
-			t1 = temp1;
-		}
-		m++;
-	}
-}
-
 
 int main() {
-	cout << "Main.cpp executed." << endl;
 
 	string filePath{ "./ressources/test.csv" };
 
 	map<int, float> content{ FileManagement::returnAsIF(filePath) };
 
-	int x = 1;
+	int x = 8;
 	float t0{ 0.f };
 	float t1{ 0.f };
 
-	cout << "##### ONE ITERATION #####" << endl;
-	cout << "pour x = " + to_string(x) + ", en une iteration :" << endl;
-	cout << "y vrai = " + to_string(content[x]) << endl;
-	cout << "y hypothese = " + to_string(hypothesis(x, t0, t1)) << endl;
-	cout << "cost = " + to_string(cost(1, x, content, t0, t1)) << endl;
 
-	cout << "t0 = " << t0 << endl;
-	cout << "t1 = " << t1 << endl;
-	gradientT0(t0, t1, 0.1, content, x);
-	cout << "t0 = " << t0 << endl;
-	cout << "t1 = " << t1 << endl;
+	cout << "##### FIRST HYPOTHESIS #####" << endl;
+	cout << "For x = " + to_string(x) + ", theta0 and theta1 = " << t0 << endl;
+	cout << "y in database = " + to_string(content[x]) << endl;
+	cout << "y hypothesis = " + to_string(hypothesis(x, t0, t1)) << endl;
+	cout << "cost = " + to_string(cost(content, t0, t1)) << endl;
 
+	cout << endl;
+	cout << "########## START GRADIENT ##########" << endl;
+	findThetas(t0, t1, 0.001, 0.001, content);
 
 	// print datas
+	cout << endl;
 	cout << "######### DATA SET ########" << endl;
 	for (const auto& elem : content)
 	{
