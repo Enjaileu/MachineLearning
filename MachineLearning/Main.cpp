@@ -1,5 +1,6 @@
 #include <iostream>
-#include <map>
+#include <vector>
+#include <utility>
 #include <math.h>
 
 #include "FileManagement.h"
@@ -12,7 +13,7 @@ float hypothesis(float x, float t0, float t1) {
 	return t1 * x + t0;
 }
 
-double cost(map<int, float>& content, float t0, float t1 ) {
+double cost(vector<pair<int, double>>& content, float t0, float t1 ) {
 
 	double totalCost{ 0.f };
 
@@ -26,7 +27,7 @@ double cost(map<int, float>& content, float t0, float t1 ) {
 	return averageCost;
 }
 
-void gradient(map<int, float>& content, float& t0, float& t1, float step) {
+void gradient(vector<pair<int, double>>& content, float& t0, float& t1, float step) {
 
 	float totalError0{ 0.f };
 	float totalError1{ 0.f };
@@ -37,10 +38,10 @@ void gradient(map<int, float>& content, float& t0, float& t1, float step) {
 		//hypothese
 		float hypo{ hypothesis(i->first, t0, t1) };
 		// differences
-		const float errorDiff{ hypo - i->second };
-		const float errorDiff1 =  (hypo - i->second) * i->first;
+		const double errorDiff0{hypo - i->second };
+		const double errorDiff1 =  (hypo - i->second) * i->first;
 		//on augmente les totaux
-		totalError0 += errorDiff;
+		totalError0 += errorDiff0;
 		totalError1 += errorDiff1;
 	}
 
@@ -52,11 +53,10 @@ void gradient(map<int, float>& content, float& t0, float& t1, float step) {
 }
 
 
-void findThetas(float &t0, float &t1, float stop, float step, map<int, float> &content) {
+void findThetas(float &t0, float &t1, float stop, float step, vector<pair<int, double>> &content) {
 	int iter{ 1 };
 	int dataSize{ int(content.size()) };
-	float diff;
-
+	double diff;
 	
 	do {
 		cout << "###############   Iteration " << iter << " ############################" << endl;
@@ -69,47 +69,43 @@ void findThetas(float &t0, float &t1, float stop, float step, map<int, float> &c
 
 		gradient(content, t0, t1, step);
 
-		double newCost{ cost(content, t0, t1) };
+		double newCost {cost(content, t0, t1) };
 
 		cout << "--- GRADIENT ---" << endl;
 		cout << "Theta0 = " << t0 << " ; Theta1 = " << t1 << endl;
 		cout << "New cost = " << newCost << endl;
 		cout << endl;
 		iter++;
-	} while (iter <5);
-	//while(diff > stop
-	
+
+		diff = initialCost - newCost;
+	} while (diff>stop);	
 }
+
 
 int main() {
 
 	//on récupere les datas pour les mettre dans une map
 	string filePath{ "./ressources/test.csv" };
 
-	map<int, float> content{ FileManagement::returnAsIF(filePath) };
+	vector<pair<int, double>> content{ FileManagement::returnAsVec(filePath) };
 
 	int x = 8;
 	float t0{ 0.f };
 	float t1{ 0.f };
 
-
-	cout << "##### FIRST HYPOTHESIS #####" << endl;
-	cout << "For x = " + to_string(x) + ", theta0 and theta1 = " << t0 << endl;
-	cout << "y in database = " + to_string(content[x]) << endl;
-	cout << "y hypothesis = " + to_string(hypothesis(x, t0, t1)) << endl;
-	cout << "cost = " + to_string(cost(content, t0, t1)) << endl;
-
 	cout << endl;
 	cout << "########## START GRADIENT ##########" << endl;
-	findThetas(t0, t1, 0.001, 0.001, content);
+	findThetas(t0, t1, 0.001, 0.0001, content);
+	
 
 	// print datas
+	/*
 	cout << endl;
 	cout << "######### DATA SET ########" << endl;
-	for (const auto& elem : content)
+	for (auto i = content.begin(); i != content.end(); i++)
 	{
-		std::cout << elem.first << " " << elem.second << endl;
+		std::cout << i->first << " " << i->second << endl;
 	}
-	
+	*/
 	return 0;
 }

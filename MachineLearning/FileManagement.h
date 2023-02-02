@@ -1,9 +1,10 @@
 #pragma once
-#include <map>
+#include <vector>
 #include <string>
+#include <utility>
 
 class FileManagement {
 
 public:
-	static std::map<int, float> returnAsIF(std::string filePathP);
+	static std::vector<std::pair<int, double>> returnAsVec(std::string filePathP);
 };

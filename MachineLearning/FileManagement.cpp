@@ -7,9 +7,10 @@
 
 using namespace std;
 
-map<int, float> FileManagement::returnAsIF(string filePathP)
+vector<pair<int, double>> FileManagement::returnAsVec(string filePathP)
 {
-	map<int, float> content;
+	cout << "DATA READ ################################################" << endl;
+	vector<pair<int, double>>  content;
 
 	// open stream
 	ifstream stream{ filePathP };
@@ -30,7 +31,9 @@ map<int, float> FileManagement::returnAsIF(string filePathP)
 					token1 = line.substr(0, pos);
 					line.erase(0, pos + delim.length());
 				}
-				content[stoi(token1)] = stof(line);
+				pair<int, double> pair0( stoi(token1), stod(line) );
+				content.push_back(pair0);
+
 			}
 		}
 	}
